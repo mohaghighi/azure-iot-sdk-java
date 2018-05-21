@@ -57,6 +57,7 @@ public class DeviceClientConfigTest
     @Mocked ProductInfo mockedProductInfo;
 
     private static String expectedDeviceId = "deviceId";
+    private static String expectedModuleId = "moduleId";
     private static String expectedHostname = "hostname";
 
     // Tests_SRS_DEVICECLIENTCONFIG_11_002: [The function shall return the IoT Hub hostname given in the constructor.]
@@ -627,7 +628,10 @@ public class DeviceClientConfigTest
                 mockIotHubConnectionString.getDeviceId();
                 result = expectedDeviceId;
 
-                new IotHubSasTokenHardwareAuthenticationProvider(expectedHostname, expectedDeviceId, mockSecurityProviderSAS);
+                mockIotHubConnectionString.getModuleId();
+                result = expectedModuleId;
+
+                new IotHubSasTokenHardwareAuthenticationProvider(expectedHostname, expectedDeviceId, expectedModuleId, mockSecurityProviderSAS);
                 result = mockSasTokenHardwareAuthentication;
             }
         };
@@ -641,7 +645,7 @@ public class DeviceClientConfigTest
         new Verifications()
         {
             {
-                new IotHubSasTokenHardwareAuthenticationProvider(expectedHostname, expectedDeviceId, mockSecurityProviderSAS);
+                new IotHubSasTokenHardwareAuthenticationProvider(expectedHostname, expectedDeviceId, expectedModuleId, mockSecurityProviderSAS);
                 times = 1;
             }
         };

@@ -40,7 +40,7 @@ public class IotHubRejectUriTest
         {
             {
                 new IotHubUri(iotHubHostname, deviceId, rejectPath,
-                        (Map<String, String>) any);
+                        (Map<String, String>) any, null);
             }
         };
     }

@@ -112,6 +112,7 @@ public final class DeviceClientConfig
         this.sasTokenAuthentication = new IotHubSasTokenSoftwareAuthenticationProvider(
                 this.iotHubConnectionString.getHostName(),
                 this.iotHubConnectionString.getDeviceId(),
+                this.iotHubConnectionString.getModuleId(),
                 this.iotHubConnectionString.getSharedAccessKey(),
                 this.iotHubConnectionString.getSharedAccessToken());
 
@@ -185,7 +186,7 @@ public final class DeviceClientConfig
         {
             //Codes_SRS_DEVICECLIENTCONFIG_34_083: [If the provided security provider is a SecurityProviderTpm instance, this function shall set its auth type to SAS and create its IotHubSasTokenAuthenticationProvider instance using the security provider.]
             this.authenticationType = AuthType.SAS_TOKEN;
-            this.sasTokenAuthentication = new IotHubSasTokenHardwareAuthenticationProvider(connectionString.getHostName(), connectionString.getDeviceId(), securityProvider);
+            this.sasTokenAuthentication = new IotHubSasTokenHardwareAuthenticationProvider(connectionString.getHostName(), connectionString.getDeviceId(), connectionString.getModuleId(), securityProvider);
         }
         else if (securityProvider instanceof SecurityProviderX509)
         {
@@ -346,6 +347,11 @@ public final class DeviceClientConfig
     {
         // Codes_SRS_DEVICECLIENTCONFIG_11_003: [The function shall return the device ID given in the constructor.]
         return this.iotHubConnectionString.getDeviceId();
+    }
+
+    public String getModuleId()
+    {
+        return this.iotHubConnectionString.getModuleId();
     }
 
     /**

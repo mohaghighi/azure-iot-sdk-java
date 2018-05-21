@@ -42,7 +42,7 @@ public class MqttIotHubConnectionTest
     final String hubName = "test.iothub";
     final String deviceId = "test-deviceId";
     final String deviceKey = "test-devicekey?&test";
-    final String API_VERSION = "api-version=2016-11-14";
+    final String API_VERSION = Deencapsulation.getField(MqttIotHubConnection.class, "API_VERSION");
     final String resourceUri = "test-resource-uri";
     final int qos = 1;
     final String publishTopic = "devices/test-deviceId/messages/events/";
@@ -404,7 +404,7 @@ public class MqttIotHubConnectionTest
             new Verifications()
             {
                 {
-                    new MqttMessaging(mockedMqttConnection, anyString, mockedIotHubListener, null);
+                    new MqttMessaging(mockedMqttConnection, anyString, mockedIotHubListener, null, null);
                     times = 0;
                     Deencapsulation.invoke(mockedMqttConnection, "setMqttCallback", mockDeviceMessaging);
                     times = 0;
@@ -451,7 +451,7 @@ public class MqttIotHubConnectionTest
                 result = DeviceClientConfig.AuthType.SAS_TOKEN;
                 mockConfig.getSasTokenAuthentication().getRenewedSasToken();
                 result = expectedToken;
-                new MqttMessaging(mockedMqttConnection, anyString, (IotHubListener) any, null);
+                new MqttMessaging(mockedMqttConnection, anyString, (IotHubListener) any, null, null);
                 result = mockDeviceMessaging;
                 Deencapsulation.invoke(mockedMqttConnection, "setMqttCallback", mockDeviceMessaging);
                 result = null;
@@ -509,7 +509,7 @@ public class MqttIotHubConnectionTest
                 result = DeviceClientConfig.AuthType.SAS_TOKEN;
                 mockConfig.getSasTokenAuthentication().getRenewedSasToken();
                 result = expectedToken;
-                new MqttMessaging(mockedMqttConnection, anyString, (IotHubListener) any, null);
+                new MqttMessaging(mockedMqttConnection, anyString, (IotHubListener) any, null, null);
                 result = mockDeviceMessaging;
                 Deencapsulation.invoke(mockedMqttConnection, "setMqttCallback", mockDeviceMessaging);
                 new MqttDeviceMethod(mockedMqttConnection);
@@ -1117,7 +1117,7 @@ public class MqttIotHubConnectionTest
         new Verifications()
         {
             {
-                new MqttMessaging((MqttConnection) any, anyString, (IotHubListener) any, null);
+                new MqttMessaging((MqttConnection) any, anyString, (IotHubListener) any, null, null);
                 times = 1;
             }
         };
@@ -1529,7 +1529,7 @@ public class MqttIotHubConnectionTest
                 result = expectedToken;
                 Deencapsulation.newInstance(MqttConnection.class, new Class[] {String.class, String.class, String.class, String.class, SSLContext.class}, anyString, anyString, anyString, anyString, any);
                 result = mockedMqttConnection;
-                new MqttMessaging(mockedMqttConnection, anyString, (IotHubListener) any, null);
+                new MqttMessaging(mockedMqttConnection, anyString, (IotHubListener) any, null, null);
                 result = mockDeviceMessaging;
                 Deencapsulation.invoke(mockedMqttConnection, "setMqttCallback", mockDeviceMessaging);
                 new MqttDeviceTwin(mockedMqttConnection);

@@ -38,7 +38,7 @@ public class IotHubCompleteUriTest
         new Verifications()
         {
             {
-                new IotHubUri(iotHubHostname, deviceId, completePath);
+                new IotHubUri(iotHubHostname, deviceId, completePath, null);
             }
         };
     }

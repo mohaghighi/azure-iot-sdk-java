@@ -47,7 +47,7 @@ public final class IotHubRejectUri
         String rejectPath = String.format(REJECT_PATH_FORMAT, eTag);
 
         this.uri = new IotHubUri(iotHubHostname, deviceId, rejectPath,
-                        REJECT_QUERY_PARAM);
+                        REJECT_QUERY_PARAM, null);
     }
 
     /**

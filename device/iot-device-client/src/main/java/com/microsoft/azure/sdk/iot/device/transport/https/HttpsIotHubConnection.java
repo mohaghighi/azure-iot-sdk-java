@@ -80,9 +80,9 @@ public class HttpsIotHubConnection implements IotHubTransportConnection
 
             String iotHubHostname = this.config.getIotHubHostname();
             String deviceId = this.config.getDeviceId();
+            String moduleId = this.config.getModuleId();
 
-            // Codes_SRS_HTTPSIOTHUBCONNECTION_11_002: [The function shall send a request to the URL 'https://[iotHubHostname]/devices/[deviceId]/messages/events?api-version=2016-02-03'.]
-            IotHubEventUri iotHubEventUri = new IotHubEventUri(iotHubHostname, deviceId);
+            IotHubEventUri iotHubEventUri = new IotHubEventUri(iotHubHostname, deviceId, moduleId);
 
             URL eventUrl = this.buildUrlFromString(HTTPS_HEAD_TAG + iotHubEventUri.toString());
 
@@ -149,9 +149,10 @@ public class HttpsIotHubConnection implements IotHubTransportConnection
         {
             String iotHubHostname = this.config.getIotHubHostname();
             String deviceId = this.config.getDeviceId();
+            String moduleId = this.config.getModuleId();
 
             // Codes_SRS_HTTPSIOTHUBCONNECTION_21_041: [The function shall send a request to the URL https://[iotHubHostname]/devices/[deviceId]/[path]?api-version=2016-02-03.]
-            IotHubUri iotHubUri = new IotHubUri(iotHubHostname, deviceId, httpsPath);
+            IotHubUri iotHubUri = new IotHubUri(iotHubHostname, deviceId, httpsPath, moduleId);
             URL messageUrl = this.buildUrlFromString(HTTPS_HEAD_TAG + iotHubUri.toString());
 
             // Codes_SRS_HTTPSIOTHUBCONNECTION_21_042: [The function shall send a `httpsMethod` request.]
@@ -197,7 +198,7 @@ public class HttpsIotHubConnection implements IotHubTransportConnection
         synchronized (HTTPS_CONNECTION_LOCK)
         {
             // Codes_SRS_HTTPSIOTHUBCONNECTION_11_013: [The function shall send a request to the URL 'https://[iotHubHostname]/devices/[deviceId]/messages/devicebound?api-version=2016-02-03'.]
-            IotHubMessageUri messageUri = new IotHubMessageUri(this.config.getIotHubHostname(), this.config.getDeviceId());
+            IotHubMessageUri messageUri = new IotHubMessageUri(this.config.getIotHubHostname(), this.config.getDeviceId(), this.config.getModuleId());
             URL messageUrl = this.buildUrlFromString(HTTPS_HEAD_TAG + messageUri.toString());
 
             // Codes_SRS_HTTPSIOTHUBCONNECTION_11_014: [The function shall send a GET request.]

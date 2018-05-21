@@ -31,7 +31,7 @@ public final class IotHubCompleteUri
     {
         // Codes_SRS_IOTHUBCOMPLETEURI_11_001: [The constructor returns a URI with the format "[iotHubHostname]/devices/[deviceId]/messages/devicebound/[eTag]?api-version=2016-02-03".]
         String completePath = String.format(COMPLETE_PATH_FORMAT, eTag);
-        this.uri = new IotHubUri(iotHubHostname, deviceId, completePath);
+        this.uri = new IotHubUri(iotHubHostname, deviceId, completePath, null);
     }
 
     /**

@@ -39,7 +39,7 @@ public class IotHubAbandonUriTest
         new Verifications()
         {
             {
-                new IotHubUri(iotHubHostname, deviceId, abandonPath);
+                new IotHubUri(iotHubHostname, deviceId, abandonPath, null);
             }
         };
     }

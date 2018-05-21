@@ -31,7 +31,7 @@ public final class IotHubAbandonUri
     {
         // Codes_SRS_IOTHUBABANDONURI_11_001: [The constructor returns a URI with the format "[iotHubHostname]/devices/[deviceId]/messages/devicebound/[eTag]/abandon?api-version=2016-02-03".]
         String abandonPath = String.format(ABANDON_PATH_FORMAT, eTag);
-        this.uri = new IotHubUri(iotHubHostname, deviceId, abandonPath);
+        this.uri = new IotHubUri(iotHubHostname, deviceId, abandonPath, null);
     }
 
     /**
