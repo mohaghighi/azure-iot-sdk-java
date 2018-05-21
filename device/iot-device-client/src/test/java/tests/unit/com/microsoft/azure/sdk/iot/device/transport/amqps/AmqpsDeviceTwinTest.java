@@ -1366,6 +1366,8 @@ public class AmqpsDeviceTwinTest
 
     // Tests_SRS_AMQPSDEVICETWIN_12_031: [The function shall copy the correlationId, messageId properties to the Proton message properties.]
     // Tests_SRS_AMQPSDEVICETWIN_12_045: [The function shall add the correlationId to the correlationIdList if it is not null.]
+    // Tests_SRS_AMQPSDEVICETWIN_34_052: [If the message has an outputName saved, this function shall set that
+    // value to the "iothub-outputname" application property in the proton message.]
     @Test
     public void convertToProtonSetsProperties(
             @Mocked final Properties mockProperties,
@@ -1395,7 +1397,11 @@ public class AmqpsDeviceTwinTest
                 times = 2;
                 result = messageId;
                 mockIotHubTransportMessage.getCorrelationId();
+                result = "some correlation id";
                 times = 3;
+                mockIotHubTransportMessage.getOutputName();
+                times = 2;
+                result = "Some outputname";
                 result = correlationId;
             }
         };

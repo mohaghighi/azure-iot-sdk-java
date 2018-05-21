@@ -948,4 +948,80 @@ public class AmqpsDeviceMethodsTest
         assertNotNull(Deencapsulation.invoke(amqpsConvertToProtonReturnValue, "getMessageImpl"));
         assertEquals(MessageType.DEVICE_METHODS, Deencapsulation.invoke(amqpsConvertToProtonReturnValue, "getMessageType"));
     }
+
+    // Tests_SRS_AMQPSDEVICEMETHODS_34_051: [The function shall set the proton message outputname application property to the value of IoTHubTransportMessage outputName field.]
+    @Test
+    public void convertToProtonSetsOutputName(
+            @Mocked final Properties mockProtonProperties,
+            @Mocked final MessageProperty mockMessageProperty,
+            @Mocked final IotHubTransportMessage mockIotHubTransportMessage,
+            @Mocked final MessageImpl mockMessageImpl,
+            @Mocked final ApplicationProperties mockApplicationProperties
+    )
+    {
+        //arrange
+        String deviceId = "deviceId";
+        final String messageId = "messageId";
+        final String correlationId = "correlationId";
+        final String outputName = "outputName";
+        final MessageProperty[] properties = new MessageProperty[1];
+        properties[0] = mockMessageProperty;
+        final String propertyKey = "testPropertyKey";
+        final int statusValue = 404;
+
+        new NonStrictExpectations()
+        {
+            {
+                new Properties();
+                result = null;
+                mockIotHubTransportMessage.getMessageType();
+                result = MessageType.DEVICE_METHODS;
+                mockIotHubTransportMessage.getMessageId();
+                result = null;
+                mockIotHubTransportMessage.getCorrelationId();
+                result = null;
+
+                mockIotHubTransportMessage.getProperties();
+                result = properties;
+
+                mockMessageProperty.getName();
+                result = propertyKey;
+
+                mockIotHubTransportMessage.getStatus();
+                result = statusValue;
+
+                mockIotHubTransportMessage.getCorrelationId();
+                result = null;
+
+                mockIotHubTransportMessage.getOutputName();
+                times = 2;
+                result = outputName;
+
+                new ApplicationProperties((Map) any);
+                result = mockApplicationProperties;
+
+                mockDeviceClientConfig.getDeviceId();
+                result = "deviceId";
+            }
+        };
+
+        AmqpsDeviceMethods amqpsDeviceMethods = Deencapsulation.newInstance(AmqpsDeviceMethods.class, mockDeviceClientConfig);
+        Deencapsulation.invoke(amqpsDeviceMethods, "openLinks", mockSession);
+
+        //act
+        AmqpsConvertToProtonReturnValue amqpsConvertToProtonReturnValue = Deencapsulation.invoke(amqpsDeviceMethods, "convertToProton", mockIotHubTransportMessage);
+
+        //assert
+        new Verifications()
+        {
+            {
+                mockMessageImpl.setApplicationProperties(mockApplicationProperties);
+                times = 1;
+            }
+        };
+
+        assertNotNull(amqpsConvertToProtonReturnValue);
+        assertNotNull(Deencapsulation.invoke(amqpsConvertToProtonReturnValue, "getMessageImpl"));
+        assertEquals(MessageType.DEVICE_METHODS, Deencapsulation.invoke(amqpsConvertToProtonReturnValue, "getMessageType"));
+    }
 }

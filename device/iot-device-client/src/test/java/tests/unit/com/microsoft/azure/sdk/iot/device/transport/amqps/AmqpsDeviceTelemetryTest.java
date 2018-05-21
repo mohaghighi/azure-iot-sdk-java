@@ -449,6 +449,7 @@ public class AmqpsDeviceTelemetryTest
     **Tests_SRS_AMQPSDEVICETELEMETRY_12_017: [**The function shall copy the user properties to Proton message application properties excluding the reserved property names.**]**
     **Tests_SRS_AMQPSDEVICETELEMETRY_12_018: [**The function shall create a new AmqpsConvertToProtonReturnValue object and fill it with the Proton message and the message type.**]**
     **Tests_SRS_AMQPSDEVICETELEMETRY_12_019: [**The function shall return with the new AmqpsConvertToProtonReturnValue object.**]**
+    **Tests_SRS_AMQPSDEVICETELEMETRY_34_051: [This function shall set the message's saved outputname in the application properties of the new proton message.]
     */
     @Test
     public void convertToProtonSuccess(
@@ -485,6 +486,10 @@ public class AmqpsDeviceTelemetryTest
                 result = correlationId;
                 mockMessage.getProperties();
                 result = iotHubMessageProperties;
+                mockMessage.getOutputName();
+                result = "some output name";
+                times = 2;
+
                 new ApplicationProperties(userProperties);
             }
         };

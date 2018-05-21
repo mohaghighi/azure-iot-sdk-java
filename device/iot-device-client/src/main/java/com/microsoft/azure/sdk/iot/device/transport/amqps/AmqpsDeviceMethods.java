@@ -7,6 +7,7 @@ import com.microsoft.azure.sdk.iot.device.*;
 import com.microsoft.azure.sdk.iot.device.DeviceTwin.DeviceOperations;
 import com.microsoft.azure.sdk.iot.device.exceptions.TransportException;
 import com.microsoft.azure.sdk.iot.device.transport.IotHubTransportMessage;
+import com.microsoft.azure.sdk.iot.device.transport.TransportUtils;
 import org.apache.qpid.proton.Proton;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
@@ -32,6 +33,9 @@ public final class AmqpsDeviceMethods extends AmqpsDeviceOperations
     private final String SENDER_LINK_ENDPOINT_PATH = "/devices/%s/methods/devicebound";
     private final String RECEIVER_LINK_ENDPOINT_PATH = "/devices/%s/methods/devicebound";
 
+    private final String SENDER_LINK_ENDPOINT_PATH_MODULES = "/devices/%s/modules/%s/methods/devicebound";
+    private final String RECEIVER_LINK_ENDPOINT_PATH_MODULES = "/devices/%s/modules/%s/methods/devicebound";
+
     private final String SENDER_LINK_TAG_PREFIX = "sender_link_devicemethods-";
     private final String RECEIVER_LINK_TAG_PREFIX = "receiver_link_devicemethods-";
 
@@ -47,23 +51,41 @@ public final class AmqpsDeviceMethods extends AmqpsDeviceOperations
 
         this.deviceClientConfig = deviceClientConfig;
 
-        // Codes_SRS_AMQPSDEVICEMETHODS_12_002: [The constructor shall set the sender and receiver endpoint path to IoTHub specific values.]
-        this.senderLinkEndpointPath = SENDER_LINK_ENDPOINT_PATH;
-        this.receiverLinkEndpointPath = RECEIVER_LINK_ENDPOINT_PATH;
+        String moduleId = this.deviceClientConfig.getIotHubConnectionString().getModuleId();
+        if (moduleId != null && !moduleId.isEmpty())
+        {
+            this.senderLinkEndpointPath = SENDER_LINK_ENDPOINT_PATH_MODULES;
+            this.receiverLinkEndpointPath = RECEIVER_LINK_ENDPOINT_PATH_MODULES;
 
-        // Codes_SRS_AMQPSDEVICEMETHODS_12_003: [The constructor shall concatenate a sender specific prefix to the sender link tag's current value.]
-        this.senderLinkTag = SENDER_LINK_TAG_PREFIX + this.deviceClientConfig.getDeviceId() + "-" + senderLinkTag;
-        // Codes_SRS_AMQPSDEVICEMETHODS_12_004: [The constructor shall concatenate a receiver specific prefix to the receiver link tag's current value.]
-        this.receiverLinkTag = RECEIVER_LINK_TAG_PREFIX + this.deviceClientConfig.getDeviceId() + "-" + receiverLinkTag;
+            this.senderLinkTag = SENDER_LINK_TAG_PREFIX + this.deviceClientConfig.getDeviceId() + "-" + senderLinkTag;
+            this.receiverLinkTag = RECEIVER_LINK_TAG_PREFIX + this.deviceClientConfig.getDeviceId() + "-" + receiverLinkTag;
 
-        // Codes_SRS_AMQPSDEVICEMETHODS_12_005: [The constructor shall insert the given deviceId argument to the sender and receiver link address.]
-        this.senderLinkAddress = String.format(senderLinkEndpointPath, this.deviceClientConfig.getDeviceId());
-        this.receiverLinkAddress = String.format(receiverLinkEndpointPath, this.deviceClientConfig.getDeviceId());
+            this.senderLinkAddress = String.format(senderLinkEndpointPath, this.deviceClientConfig.getDeviceId(), moduleId);
+            this.receiverLinkAddress = String.format(receiverLinkEndpointPath, this.deviceClientConfig.getDeviceId(), moduleId);
+
+            this.amqpProperties.put(Symbol.getSymbol(CORRELATION_ID_KEY), Symbol.getSymbol(this.deviceClientConfig.getDeviceId() + "/" + moduleId));
+        }
+        else
+        {
+            // Codes_SRS_AMQPSDEVICEMETHODS_12_002: [The constructor shall set the sender and receiver endpoint path to IoTHub specific values.]
+            this.senderLinkEndpointPath = SENDER_LINK_ENDPOINT_PATH;
+            this.receiverLinkEndpointPath = RECEIVER_LINK_ENDPOINT_PATH;
+
+            // Codes_SRS_AMQPSDEVICEMETHODS_12_003: [The constructor shall concatenate a sender specific prefix to the sender link tag's current value.]
+            this.senderLinkTag = SENDER_LINK_TAG_PREFIX + this.deviceClientConfig.getDeviceId() + "-" + senderLinkTag;
+            // Codes_SRS_AMQPSDEVICEMETHODS_12_004: [The constructor shall concatenate a receiver specific prefix to the receiver link tag's current value.]
+            this.receiverLinkTag = RECEIVER_LINK_TAG_PREFIX + this.deviceClientConfig.getDeviceId() + "-" + receiverLinkTag;
+
+            // Codes_SRS_AMQPSDEVICEMETHODS_12_005: [The constructor shall insert the given deviceId argument to the sender and receiver link address.]
+            this.senderLinkAddress = String.format(senderLinkEndpointPath, this.deviceClientConfig.getDeviceId());
+            this.receiverLinkAddress = String.format(receiverLinkEndpointPath, this.deviceClientConfig.getDeviceId());
+
+            // Codes_SRS_AMQPSDEVICEMETHODS_12_007: [The constructor shall add correlation ID key and deviceId value to the amqpProperties.]
+            this.amqpProperties.put(Symbol.getSymbol(CORRELATION_ID_KEY), Symbol.getSymbol(this.deviceClientConfig.getDeviceId()));
+        }
 
         // Codes_SRS_AMQPSDEVICEMETHODS_12_006: [The constructor shall add API version key and API version value to the amqpProperties.]
-        this.amqpProperties.put(Symbol.getSymbol(API_VERSION_KEY), API_VERSION_VALUE);
-        // Codes_SRS_AMQPSDEVICEMETHODS_12_007: [The constructor shall add correlation ID key and deviceId value to the amqpProperties.]
-        this.amqpProperties.put(Symbol.getSymbol(CORRELATION_ID_KEY), Symbol.getSymbol(this.deviceClientConfig.getDeviceId()));
+        this.amqpProperties.put(Symbol.getSymbol(API_VERSION_KEY), TransportUtils.IOTHUB_API_VERSION);
     }
 
     /**
@@ -311,7 +333,7 @@ public final class AmqpsDeviceMethods extends AmqpsDeviceOperations
 
         // Codes_SRS_AMQPSDEVICEMETHODS_12_032: [The function shall copy the user properties to Proton message application properties excluding the reserved property names.]
         int propertiesLength = deviceMethodMessage.getProperties().length;
-        Map<String, Object> userProperties = new HashMap<>(propertiesLength);
+        Map<String, Object> userProperties = new HashMap<>();
         if (propertiesLength > 0)
         {
             for(MessageProperty messageProperty : deviceMethodMessage.getProperties())
@@ -321,6 +343,12 @@ public final class AmqpsDeviceMethods extends AmqpsDeviceOperations
                     userProperties.put(messageProperty.getName(), messageProperty.getValue());
                 }
             }
+        }
+
+        if (message.getOutputName() != null)
+        {
+            // Codes_SRS_AMQPSDEVICEMETHODS_34_051: [The function shall set the proton message outputname application property to the value of IoTHubTransportMessage outputName field.]
+            userProperties.put(MessageProperty.OUTPUT_NAME_PROPERTY, message.getOutputName());
         }
 
         // Codes_SRS_AMQPSDEVICEMETHODS_12_033: [The function shall set the proton message status field to the value of IoTHubTransportMessage status field.]
